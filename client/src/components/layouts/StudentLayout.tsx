@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { BookOpen, GraduationCap, Home, Menu, X } from 'lucide-react';
+import { UserButton, useUser } from '@clerk/react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -11,6 +12,7 @@ import { cn } from '@/lib/utils';
 const StudentLayout: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const { isSignedIn } = useUser();
 
   const navItems = [
     { path: '/student', label: 'Dashboard', icon: Home },
@@ -60,11 +62,17 @@ const StudentLayout: React.FC = () => {
 
           {/* Role Switcher */}
           <div className="flex items-center gap-2">
-            <Link to="/examiner">
-              <Button variant="outline" size="sm" className="hidden md:flex">
-                Switch to Examiner
-              </Button>
-            </Link>
+            {isSignedIn && (
+              <div className="hidden md:flex">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            )}
+
+            <Button asChild variant="outline" size="sm" className="hidden md:flex">
+              <Link to="/sign-in/examiner">
+                Examiner sign in
+              </Link>
+            </Button>
 
             {/* Mobile Menu Button */}
             <Button
@@ -97,11 +105,11 @@ const StudentLayout: React.FC = () => {
                   </Button>
                 </Link>
               ))}
-              <Link to="/examiner" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="outline" className="w-full mt-2">
-                  Switch to Examiner
-                </Button>
-              </Link>
+              <Button asChild variant="outline" className="w-full mt-2">
+                <Link to="/sign-in/examiner" onClick={() => setMobileMenuOpen(false)}>
+                  Examiner sign in
+                </Link>
+              </Button>
             </nav>
           </div>
         )}

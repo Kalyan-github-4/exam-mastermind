@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, FileText, PlusCircle, Menu, X, ClipboardList } from 'lucide-react';
+import { UserButton, useUser } from '@clerk/react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -11,6 +12,7 @@ import { cn } from '@/lib/utils';
 const ExaminerLayout: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const { isSignedIn } = useUser();
 
   const navItems = [
     { path: '/examiner', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -68,15 +70,29 @@ const ExaminerLayout: React.FC = () => {
 
           {/* Role Switcher */}
           <div className="flex items-center gap-2">
-            <Link to="/student">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="hidden md:flex border-primary-foreground/20 text-black hover:bg-slate-900/10"
-              >
-                Switch to Student
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                import('@/lib/examinerAuth').then(({ logoutExaminer }) => {
+                  logoutExaminer();
+                  window.location.href = '/sign-in/examiner';
+                });
+              }}
+              className="hidden md:flex text-primary-foreground hover:bg-primary-foreground/10"
+            >
+              Sign out
+            </Button>
+
+            <Button 
+              asChild
+              variant="outline" 
+              size="sm" 
+              className="hidden md:flex border-primary-foreground/20 text-black hover:bg-slate-900/10"
+            >
+              <Link to="/sign-in/student">
+                Student sign in
+              </Link>
+            </Button>
 
             {/* Mobile Menu Button */}
             <Button
@@ -112,14 +128,15 @@ const ExaminerLayout: React.FC = () => {
                   </Button>
                 </Link>
               ))}
-              <Link to="/student" onClick={() => setMobileMenuOpen(false)}>
-                <Button 
-                  variant="outline" 
-                  className="w-full mt-2 text-black"
-                >
-                  Switch to Student
-                </Button>
-              </Link>
+              <Button 
+                asChild
+                variant="outline" 
+                className="w-full mt-2 text-black"
+              >
+                <Link to="/sign-in/student" onClick={() => setMobileMenuOpen(false)}>
+                  Student sign in
+                </Link>
+              </Button>
             </nav>
           </div>
         )}
