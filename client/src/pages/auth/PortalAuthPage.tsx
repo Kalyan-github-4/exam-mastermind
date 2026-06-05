@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { ArrowRight, Mail, ShieldCheck, Sparkles } from "lucide-react";
 import { SignIn, SignUp, useUser } from "@clerk/react";
 
@@ -27,12 +27,24 @@ const isGmailAddress = (email: string) => /@gmail\.com$/i.test(email.trim());
 const PortalAuthPage = ({ mode }: PortalAuthPageProps) => {
   const { portal } = useParams<{ portal: string }>();
   const { isSignedIn, user } = useUser();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const role = normalizePortalRole(portal);
 
+  useEffect(() => {
+    console.log("[auth] portal page state", {
+      mode,
+      portal,
+      role,
+      isSignedIn,
+      userId: user?.id ?? null,
+    });
+  }, [isSignedIn, mode, portal, role, user?.id]);
+
   if (!role) {
+    console.warn("[auth] invalid portal in URL", portal);
     return <Navigate to="/" replace />;
   }
 
@@ -41,6 +53,7 @@ const PortalAuthPage = ({ mode }: PortalAuthPageProps) => {
   const title = `${portalLabels[role]} ${mode === "sign-in" ? "Sign in" : "Sign up"}`;
 
   if (role === 'examiner' && isExaminerLoggedIn()) {
+    console.log("[auth] examiner already logged in, redirecting to examiner portal");
     return <Navigate to={portalHomePath(role)} replace />;
   }
 
@@ -51,16 +64,25 @@ const PortalAuthPage = ({ mode }: PortalAuthPageProps) => {
     );
 
     if (currentRole) {
+      console.log("[auth] clerk session detected, redirecting by role", currentRole);
       return <Navigate to={portalHomePath(currentRole)} replace />;
     }
   }
 
   const handleExaminerLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("[auth] examiner login submitted", {
+      email,
+      emailMatchesExpected: email === EXAMINER_CREDENTIALS.email,
+      passwordLength: password.length,
+    });
+
     if (email === EXAMINER_CREDENTIALS.email && password === EXAMINER_CREDENTIALS.password) {
       loginExaminer();
-      window.location.href = portalHomePath('examiner');
+      console.log("[auth] examiner login succeeded");
+      navigate(portalHomePath("examiner"), { replace: true });
     } else {
+      console.warn("[auth] examiner login failed: invalid credentials");
       setError("Invalid email or password");
     }
   };
