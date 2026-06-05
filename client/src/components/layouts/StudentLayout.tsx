@@ -64,15 +64,13 @@ const StudentLayout: React.FC = () => {
           <div className="flex items-center gap-2">
             {isSignedIn && (
               <div className="hidden md:flex">
-                <UserButton afterSignOutUrl="/" />
+                {/* Clerk's UserButton typings in this workspace don't include `afterSignOutUrl`.
+                    Cast props to `any` to pass the runtime prop without a type error. */}
+                <UserButton {...({ afterSignOutUrl: "/" } as any)} />
               </div>
             )}
 
-            <Button asChild variant="outline" size="sm" className="hidden md:flex">
-              <Link to="/sign-in/examiner">
-                Examiner sign in
-              </Link>
-            </Button>
+            {/* Examiner sign-in removed from student portal header */}
 
             {/* Mobile Menu Button */}
             <Button
@@ -105,11 +103,7 @@ const StudentLayout: React.FC = () => {
                   </Button>
                 </Link>
               ))}
-              <Button asChild variant="outline" className="w-full mt-2">
-                <Link to="/sign-in/examiner" onClick={() => setMobileMenuOpen(false)}>
-                  Examiner sign in
-                </Link>
-              </Button>
+              {/* Examiner sign-in removed from student portal mobile menu */}
             </nav>
           </div>
         )}

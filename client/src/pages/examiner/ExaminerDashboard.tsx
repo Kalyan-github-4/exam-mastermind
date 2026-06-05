@@ -43,6 +43,10 @@ const ExaminerDashboard: React.FC = () => {
     .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
     .slice(0, 5);
 
+  const assignedExams = [...exams]
+    .sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())
+    .slice(0, 6);
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
@@ -254,6 +258,61 @@ const ExaminerDashboard: React.FC = () => {
                   View All Submissions
                 </Button>
               </Link>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Assigned Exams */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Assigned Exams</CardTitle>
+          <CardDescription>The exams currently seeded and available in your dashboard</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {assignedExams.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              No exams available yet
+            </p>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {assignedExams.map((exam) => {
+                const submissionCount = submissions.filter((submission) => submission.examId === exam.id).length;
+
+                return (
+                  <div key={exam.id} className="rounded-lg border bg-card p-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate font-semibold">{exam.title}</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">{exam.subject}</p>
+                      </div>
+                      <Badge variant={exam.status === 'published' ? 'default' : exam.status === 'completed' ? 'outline' : 'secondary'}>
+                        {exam.status}
+                      </Badge>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                      <div className="rounded-md bg-muted/40 p-3">
+                        <p className="text-muted-foreground">Questions</p>
+                        <p className="mt-1 font-medium">{exam.questionCount ?? exam.questions?.length ?? 0}</p>
+                      </div>
+                      <div className="rounded-md bg-muted/40 p-3">
+                        <p className="text-muted-foreground">Submissions</p>
+                        <p className="mt-1 font-medium">{submissionCount}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex gap-2">
+                      <Button asChild variant="outline" className="flex-1">
+                        <Link to={`/examiner/exams/${exam.id}/submissions`}>View</Link>
+                      </Button>
+                      <Button asChild className="flex-1">
+                        <Link to={`/examiner/exams/${exam.id}/edit`}>Edit</Link>
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>

@@ -1,0 +1,10 @@
+{
+   "name": "vite_react_shadcn_ts",
+  "private": true,
+  "scripts": {
+     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}
